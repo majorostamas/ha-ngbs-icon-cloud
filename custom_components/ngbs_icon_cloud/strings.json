@@ -1,0 +1,29 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "NGBS iCON account",
+        "description": "Log in with the email and password you use in the NGBS iCON app.",
+        "data": {
+          "username": "Email",
+          "password": "Password"
+        }
+      },
+      "reauth_confirm": {
+        "title": "Log in again",
+        "description": "The NGBS login for {username} no longer works. Enter the current password.",
+        "data": {
+          "password": "Password"
+        }
+      }
+    },
+    "error": {
+      "invalid_auth": "Wrong email or password",
+      "cannot_connect": "Cannot reach the NGBS cloud"
+    },
+    "abort": {
+      "already_configured": "This account is already set up",
+      "reauth_successful": "Logged in again"
+    }
+  }
+}

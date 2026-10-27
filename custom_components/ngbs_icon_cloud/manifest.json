@@ -1,0 +1,14 @@
+{
+  "domain": "ngbs_icon_cloud",
+  "name": "NGBS iCON (cloud)",
+  "codeowners": [
+    "@majorostamas"
+  ],
+  "config_flow": true,
+  "documentation": "https://github.com/majorostamas/ha-ngbs-icon-cloud",
+  "integration_type": "hub",
+  "iot_class": "cloud_polling",
+  "issue_tracker": "https://github.com/majorostamas/ha-ngbs-icon-cloud/issues",
+  "requirements": [],
+  "version": "0.1.0"
+}
