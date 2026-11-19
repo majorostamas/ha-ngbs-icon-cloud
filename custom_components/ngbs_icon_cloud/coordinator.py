@@ -6,15 +6,19 @@ import asyncio
 import logging
 from typing import Any
 
+import aiohttp
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
-from homeassistant.exceptions import ConfigEntryAuthFailed
+from homeassistant.exceptions import ConfigEntryAuthFailed, HomeAssistantError
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
 from .api import NgbsAuthError, NgbsCloud, NgbsError
 from .const import DOMAIN, SCAN_INTERVAL, WRITE_SETTLE_SECONDS
 
 _LOGGER = logging.getLogger(__name__)
+
+# What a request can fail with besides an auth error: API errors, network errors, timeouts.
+REQUEST_ERRORS = (NgbsError, aiohttp.ClientError, TimeoutError, OSError)
 
 type NgbsConfigEntry = ConfigEntry[NgbsCoordinator]
 
@@ -32,7 +36,7 @@ class NgbsCoordinator(DataUpdateCoordinator[dict[str, dict[str, Any]]]):
             return await self.api.controllers()
         except NgbsAuthError as err:
             raise ConfigEntryAuthFailed(str(err)) from err
-        except (NgbsError, TimeoutError, OSError) as err:
+        except REQUEST_ERRORS as err:
             raise UpdateFailed(str(err)) from err
 
     def zone(self, serial: str, zone_id: str) -> dict[str, Any] | None:
@@ -50,8 +54,11 @@ class NgbsCoordinator(DataUpdateCoordinator[dict[str, dict[str, Any]]]):
         """
         try:
             await self.api.write(serial, attr, value, term)
-        except NgbsError as err:
-            raise UpdateFailed(str(err)) from err
+        except NgbsAuthError as err:
+            self.config_entry.async_start_reauth(self.hass)
+            raise HomeAssistantError(f"NGBS login failed: {err}") from err
+        except REQUEST_ERRORS as err:
+            raise HomeAssistantError(f"Could not send the change to the NGBS cloud: {err or type(err).__name__}") from err
         if term and (z := self.zone(serial, term)) is not None:
             z[shown_as or attr] = value
         elif not term and serial in self.data:

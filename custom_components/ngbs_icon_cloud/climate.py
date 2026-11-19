@@ -29,7 +29,7 @@ async def async_setup_entry(
 
 class NgbsClimate(NgbsZoneEntity, ClimateEntity):
     _attr_name = None  # the entity takes the room's name
-    _attr_temperature_unit = UnitOfTemperature.CELSIUS
+    _attr_native_temperature_unit = UnitOfTemperature.CELSIUS
     _attr_target_temperature_step = 0.5
     _attr_preset_modes = [PRESET_COMFORT, PRESET_ECO]
     _attr_supported_features = ClimateEntityFeature.TARGET_TEMPERATURE | ClimateEntityFeature.PRESET_MODE
@@ -57,7 +57,7 @@ class NgbsClimate(NgbsZoneEntity, ClimateEntity):
         return HVACAction.COOLING if self.zone.get("HC") else HVACAction.HEATING
 
     @property
-    def current_temperature(self) -> float | None:
+    def native_current_temperature(self) -> float | None:
         return self.zone.get("TEMP")
 
     @property
@@ -65,7 +65,7 @@ class NgbsClimate(NgbsZoneEntity, ClimateEntity):
         return self.zone.get("RH")
 
     @property
-    def target_temperature(self) -> float | None:
+    def native_target_temperature(self) -> float | None:
         return self.zone.get("REQ")
 
     @property
